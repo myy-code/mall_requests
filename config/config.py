@@ -7,7 +7,7 @@ import os
 class Settings:
     def __init__(self,env="test"):
         # 获取配置文件的文件地址
-        config_file=os.path.join(os.path.dirname(__file__),"env.json")
+        config_file=os.path.join(os.path.dirname(__file__),"env_local.json")
         # 只读打开文件读取数据
         with open(config_file,"r",encoding="utf-8") as f:
             # 设置一个私有变量，存储文件中的数据
