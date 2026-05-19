@@ -1,6 +1,7 @@
-config/env.json
+config/env_local.json
 .venv/
 __pycache__/
 logs/
 reports/
 *.log
+.idea/
