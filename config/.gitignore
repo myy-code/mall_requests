@@ -1,0 +1,6 @@
+config/env.json
+.venv/
+__pycache__/
+logs/
+reports/
+*.log
