@@ -1,7 +1,9 @@
-config/env_local.json
+config/env_local.yaml
+venv
 .venv/
 __pycache__/
 logs/
 reports/
 *.log
 .idea/
+data/user_api_data/login_data.yaml

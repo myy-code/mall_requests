@@ -1,0 +1,48 @@
+register_cases:
+  - id: "normal_register"
+    username: "user0011"
+    password: "123456"
+    nickName: "测试用户1"
+    email: "user001@test.com"
+    expected_code: 200
+    description: "正常注册"
+
+  - id: "duplicate_username"
+    username: "admin"
+    password: "123456"
+    nickName: "管理员"
+    email: "admin@test.com"
+    expected_code: 400
+    description: "用户名已存在"
+
+  - id: "empty_username"
+    username: ""
+    password: "123456"
+    nickName: "空用户名"
+    email: "empty@test.com"
+    expected_code: 400
+    description: "用户名为空（@NotEmpty 触发）"
+
+  - id: "empty_password"
+    username: "user003"
+    password: ""
+    nickName: "测试用户3"
+    email: "user003@test.com"
+    expected_code: 400
+    description: "密码为空（@NotEmpty 触发）"
+
+  - id: "invalid_email"
+    username: "user004"
+    password: "123456"
+    nickName: "测试用户4"
+    email: "not-a-email"
+    expected_code: 400
+    description: "邮箱格式错误（@Email 触发）"
+
+  - id: "normal_register_2"
+    username: "user005"
+    password: "123456"
+    nickName: "测试用户5"
+    email: "user005@test.com"
+    expected_code: 200
+    description: "另一组正常注册"
