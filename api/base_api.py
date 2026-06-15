@@ -47,8 +47,17 @@ class BaseAPI:
         # 1. 拼接完整的 URL
         full_url = f"{self.base_url}{url}"
 
+
+
         # 2. 记录请求日志（将 HTTP 方法转为大写）
-        logger.info(f"{method.upper()} {full_url}")
+        logger.info(f"请求地址 {full_url}")
+        logger.info(f"请求方式：{method.upper()}")
+        if "headers" in kwargs:
+            logger.info(f"请求头：{kwargs['headers']}")
+        if "params" in kwargs:
+            logger.info(f"请求参数: {kwargs['params']}")
+        if "json" in kwargs:
+            logger.info(f"请求体: {kwargs['json']}")
 
         # 3. 记录开始时间（用于计算请求耗时）
         start = time.time()

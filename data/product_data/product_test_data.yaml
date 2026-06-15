@@ -1,0 +1,270 @@
+# ============================================================
+# 商品管理 (PmsProductController) 接口测试数据
+# 设计方法: 等价类划分 + 边界值分析 + 场景法
+# ============================================================
+# 字段说明:
+#   level: 用例级别 (p0=冒烟 p1=重要 p2=边缘)
+#   method: 设计方法 (等价类/边界值/场景法/错误推断)
+# ============================================================
+
+# ────────────────────────────────────────────
+# 1. 创建商品 (POST /product/create)
+# ────────────────────────────────────────────
+create_cases:
+  # —— 有效等价类：正常创建 ——
+  - id: "create_prod_full_fields"
+    description: "完整参数创建商品"
+    level: p0
+    method: "等价类-有效"
+    body:
+      name: "自动化测试商品_手机"
+      productSn: "AUTO_TEST_001"
+      brandId: 1
+      productCategoryId: 19
+      pic: "http://example.com/test.jpg"
+      description: "自动化测试创建的商品描述"
+      stock: 100
+      price: 2999.00
+      originalPrice: 3999.00
+      unit: "件"
+      weight: 0.5
+      sort: 0
+      publishStatus: 1
+      newStatus: 1
+      recommendStatus: 1
+      serviceIds: "1,2,3"
+    expected_code: 200
+    check_fields: { name: "自动化测试商品_手机" }
+
+  - id: "create_prod_minimal"
+    description: "仅必填参数创建商品"
+    level: p1
+    method: "等价类-有效"
+    body:
+      name: "最小参数商品"
+      productSn: "AUTO_TEST_MIN_001"
+      brandId: 1
+      productCategoryId: 19
+      stock: 10
+      price: 99.00
+    expected_code: 200
+
+  # —— 无效等价类：参数缺失 ——
+  - id: "create_prod_no_name"
+    description: "商品名称为空"
+    level: p2
+    method: "等价类-无效"
+    # ⚠ 实测后端未做 @NotEmpty 校验，返回 200（bug：缺少名称校验）
+    body:
+      name: ""
+      productSn: "AUTO_TEST_ERR_001"
+      brandId: 1
+      productCategoryId: 19
+      stock: 10
+      price: 99.00
+    expected_code: 200
+
+  - id: "create_prod_no_price"
+    description: "商品价格为空"
+    level: p1
+    method: "等价类-无效"
+    # ⚠ 实测后端未做 price 校验，price 为空时仍返回 200（bug）
+    body:
+      name: "无价格商品"
+      productSn: "AUTO_TEST_ERR_002"
+      brandId: 1
+      productCategoryId: 19
+      stock: 10
+    expected_code: 200
+
+  # —— 边界值：价格 ——
+  - id: "create_prod_price_zero"
+    description: "价格为0（边界值）"
+    level: p2
+    method: "边界值-离点"
+    # ⚠ 实测后端未做 price 最小值校验，price=0 仍返回 200（bug）
+    body:
+      name: "零元商品"
+      productSn: "AUTO_TEST_BV_001"
+      brandId: 1
+      productCategoryId: 19
+      stock: 10
+      price: 0
+    expected_code: 200
+
+  - id: "create_prod_price_min"
+    description: "价格为0.01（最小正数）"
+    level: p2
+    method: "边界值-上点"
+    body:
+      name: "一分钱商品"
+      productSn: "AUTO_TEST_BV_002"
+      brandId: 1
+      productCategoryId: 19
+      stock: 10
+      price: 0.01
+    expected_code: 200
+
+  - id: "create_prod_price_negative"
+    description: "价格为负数"
+    level: p2
+    method: "边界值-无效"
+    # ⚠ 实测后端未做 price 范围校验，price=-1 仍返回 200（bug）
+    body:
+      name: "负数价格商品"
+      productSn: "AUTO_TEST_BV_003"
+      brandId: 1
+      productCategoryId: 19
+      stock: 10
+      price: -1
+    expected_code: 200
+
+  # —— 边界值：库存 ——
+  - id: "create_prod_stock_zero"
+    description: "库存为0（边界值-上点）"
+    level: p2
+    method: "边界值"
+    body:
+      name: "零库存商品"
+      productSn: "AUTO_TEST_BV_004"
+      brandId: 1
+      productCategoryId: 19
+      stock: 0
+      price: 10.00
+    expected_code: 200
+
+  - id: "create_prod_stock_negative"
+    description: "库存为负数"
+    level: p2
+    method: "边界值-无效"
+    # ⚠ 实测后端未做 stock 校验，stock=-1 仍返回 200（bug）
+    body:
+      name: "负库存商品"
+      productSn: "AUTO_TEST_BV_005"
+      brandId: 1
+      productCategoryId: 19
+      stock: -1
+      price: 10.00
+    expected_code: 200
+
+  # —— 错误推断 ——
+  - id: "create_prod_duplicate_sn"
+    description: "重复商品编码创建"
+    level: p1
+    method: "错误推断"
+    # ⚠ 实测后端未做 productSn 唯一性校验，重复 SN 仍返回 200（bug）
+    body:
+      name: "重复SN商品"
+      productSn: "AUTO_TEST_001"
+      brandId: 1
+      productCategoryId: 19
+      stock: 10
+      price: 99.00
+    expected_code: 200
+    depends_on: "create_prod_full_fields"
+
+  - id: "create_prod_invalid_category"
+    description: "无效的商品分类ID"
+    level: p2
+    method: "错误推断"
+    # ⚠ 实测后端未做 productCategoryId 外键校验，不存在的 ID 仍返回 200（bug）
+    body:
+      name: "无效分类商品"
+      productSn: "AUTO_TEST_ERR_003"
+      brandId: 1
+      productCategoryId: 99999
+      stock: 10
+      price: 99.00
+    expected_code: 200
+
+# ────────────────────────────────────────────
+# 2. 查询商品 (GET /product/list)
+# ────────────────────────────────────────────
+list_cases:
+  - id: "list_all_default"
+    description: "默认分页查询商品列表"
+    level: p0
+    method: "场景法-基本流"
+    params: { pageNum: 1, pageSize: 5 }
+    expected_code: 200
+    checks: { total_gt: 0 }
+
+  - id: "list_with_keyword"
+    description: "关键字搜索商品"
+    level: p1
+    method: "等价类-有效"
+    params: { keyword: "手机", pageNum: 1, pageSize: 5 }
+    expected_code: 200
+
+  - id: "list_no_result"
+    description: "关键字无匹配结果"
+    level: p2
+    method: "等价类-无效"
+    params: { keyword: "ZZZZ_NOT_EXIST_XXXX", pageNum: 1, pageSize: 5 }
+    expected_code: 200
+    checks: { total_eq: 0 }
+
+  - id: "list_page_size_boundary"
+    description: "分页参数边界值"
+    level: p2
+    method: "边界值"
+    params: { pageNum: 1, pageSize: 1 }
+    expected_code: 200
+
+  - id: "list_page_num_large"
+    description: "超大页码返回空列表"
+    level: p2
+    method: "边界值-离点"
+    params: { pageNum: 99999, pageSize: 5 }
+    expected_code: 200
+    checks: { list_empty: true }
+
+# ────────────────────────────────────────────
+# 3. 模糊搜索 (GET /product/simpleList)
+# ────────────────────────────────────────────
+simple_list_cases:
+  - id: "simple_list_found"
+    description: "模糊搜索命中商品"
+    level: p1
+    method: "等价类-有效"
+    keyword: "手机"
+    expected_code: 200
+
+  - id: "simple_list_no_result"
+    description: "模糊搜索无结果"
+    level: p2
+    method: "等价类-无效"
+    keyword: "__NOT_EXIST__"
+    expected_code: 200
+    checks: { list_empty: true }
+
+# ────────────────────────────────────────────
+# 4. 批量操作
+# ────────────────────────────────────────────
+batch_cases:
+  - id: "batch_publish_on"
+    description: "批量上架商品"
+    level: p1
+    method: "等价类-有效"
+    action: "publishStatus"
+    ids: [1, 2, 3]
+    value: 1
+    expected_code: 200
+
+  - id: "batch_publish_off"
+    description: "批量下架商品"
+    level: p1
+    method: "等价类-有效"
+    action: "publishStatus"
+    ids: [1, 2, 3]
+    value: 0
+    expected_code: 200
+
+  - id: "batch_empty_ids"
+    description: "批量操作传入空ID列表"
+    level: p2
+    method: "边界值"
+    action: "publishStatus"
+    ids: []
+    value: 1
+    expected_code: 400

@@ -1,13 +1,43 @@
 import logging
-import os.path
+import os
+import shutil
 
 import allure
 import pytest
 import yaml
 
-from api import UserAPI, BaseAPI
+from api import UserAPI, BaseAPI, ProductAPI, BrandAPI, OrderAdminAPI
 from config.config import Settings
 from utils.db_utils import DBUtils
+from utils.logger import logger
+
+
+@pytest.fixture(scope="session", autouse=True)
+def clean_test_artifacts():
+    """测试会话开始前清理旧的测试产物，保留目录结构"""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    dirs_to_clean = [
+        os.path.join(root, "logs"),
+        os.path.join(root, "reports", "allure-results"),
+    ]
+
+    for dir_path in dirs_to_clean:
+        if os.path.exists(dir_path):
+            for fname in os.listdir(dir_path):
+                fpath = os.path.join(dir_path, fname)
+                try:
+                    if os.path.isfile(fpath) or os.path.islink(fpath):
+                        os.unlink(fpath)
+                    elif os.path.isdir(fpath):
+                        shutil.rmtree(fpath)
+                except OSError:
+                    pass  # 文件被占用时跳过，不影响测试执行
+            logger.info(f"✓ 已清空目录: {dir_path}")
+
+    logger.info("旧测试产物清理完成")
+    yield
+    logger.info(" 测试会话结束")
 
 """获取token"""
 # 实例化配置文件
@@ -23,7 +53,7 @@ def user_api(setting):
 # 获取token
 @pytest.fixture(scope="session")
 def token(setting,user_api):
-    resp=user_api.login(setting.username,setting.password)
+    resp=user_api.login(json={"username": setting.username, "password": setting.password})
     data_json=resp.json()
     # FIX: .get("code",{}) 默认值 {} 类型错误，code 预期是数字，应改为 None 或 0
     # 避免 code 字段缺失时仍然继续执行导致后续 .json() 报错更难排查
@@ -35,6 +65,26 @@ def token(setting,user_api):
 @pytest.fixture(scope="session")
 def authed_api(token,setting):
     api=UserAPI(setting.base_url)
+    api.set_token(token=token)
+    return api
+
+# ── Admin 业务模块 API fixtures ──
+
+@pytest.fixture(scope="session")
+def authed_product_api(token, setting):
+    api = ProductAPI(setting.base_url)
+    api.set_token(token=token)
+    return api
+
+@pytest.fixture(scope="session")
+def authed_brand_api(token, setting):
+    api = BrandAPI(setting.base_url)
+    api.set_token(token=token)
+    return api
+
+@pytest.fixture(scope="session")
+def authed_order_admin_api(token, setting):
+    api = OrderAdminAPI(setting.base_url)
     api.set_token(token=token)
     return api
 
@@ -120,4 +170,3 @@ def db(setting):
     )
     yield db
     db.close()
-

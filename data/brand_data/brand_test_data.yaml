@@ -1,0 +1,150 @@
+# ============================================================
+# 品牌管理 (PmsBrandController) 接口测试数据
+# 设计方法: 等价类划分 + 边界值分析 + 错误推断
+# ============================================================
+
+create_cases:
+  # —— 有效等价类 ——
+  - id: "create_brand_full"
+    description: "完整参数创建品牌"
+    level: p0
+    method: "等价类-有效"
+    body:
+      name: "自动化测试品牌"
+      firstLetter: "z"
+      sort: 0
+      factoryStatus: 1
+      showStatus: 1
+      logo: "http://example.com/logo.png"
+      brandStory: "自动化测试创建的品牌故事"
+    expected_code: 200
+
+  - id: "create_brand_minimal"
+    description: "仅必填项创建品牌"
+    level: p1
+    method: "等价类-有效"
+    body:
+      name: "简约品牌"
+      firstLetter: "j"
+      logo: "http://example.com/logo.png"
+    expected_code: 200
+
+  # —— 无效等价类 ——
+  - id: "create_brand_no_name"
+    description: "品牌名称为空"
+    level: p2
+    method: "等价类-无效"
+    body:
+      name: ""
+      firstLetter: "a"
+    expected_code: 400
+
+  - id: "create_brand_name_too_long"
+    description: "品牌名称超长"
+    level: p2
+    method: "边界值-离点"
+    body:
+      name: "AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA A"
+      firstLetter: "a"
+    expected_code: 400
+
+  # —— 边界值：排序 ——
+  - id: "create_brand_sort_negative"
+    description: "排序值为负数"
+    level: p2
+    method: "边界值-无效"
+    body:
+      name: "排序负数品牌"
+      firstLetter: "p"
+      sort: -1
+    expected_code: 400
+
+  - id: "create_brand_sort_zero"
+    description: "排序值为0（最小值）"
+    level: p2
+    method: "边界值-上点"
+    body:
+      name: "排序零品牌"
+      firstLetter: "p"
+      sort: 0
+      logo: "http://example.com/logo.png"
+    expected_code: 200
+
+
+list_cases:
+  - id: "list_brand_default"
+    description: "默认分页查询品牌列表"
+    level: p0
+    method: "场景法-基本流"
+    params: { pageNum: 1, pageSize: 5 }
+    expected_code: 200
+    checks: { contains: "list" }
+
+  - id: "list_brand_filter_keyword"
+    description: "关键字筛选品牌"
+    level: p1
+    method: "等价类-有效"
+    params: { keyword: "品牌", pageNum: 1, pageSize: 5 }
+    expected_code: 200
+
+  - id: "list_brand_no_keyword"
+    description: "空关键字查询全部"
+    level: p1
+    method: "等价类-有效"
+    params: { keyword: "", pageNum: 1, pageSize: 5 }
+    expected_code: 200
+
+
+update_cases:
+  - id: "update_brand_name"
+    description: "修改品牌名称"
+    level: p1
+    method: "等价类-有效"
+    brand_id: 1
+    body:
+      name: "更新后的品牌名"
+      firstLetter: "g"
+    expected_code: 200
+
+  - id: "update_brand_not_found"
+    description: "修改不存在的品牌"
+    level: p2
+    method: "错误推断"
+    brand_id: 99999
+    body:
+      name: "不存在的品牌"
+    expected_code: 404
+
+
+delete_cases:
+  - id: "delete_brand_exist"
+    description: "删除存在的品牌"
+    level: p1
+    method: "等价类-有效"
+    brand_id: 99   # 需要预先创建或使用测试ID
+    expected_code: 200
+
+  - id: "delete_brand_not_exist"
+    description: "删除不存在的品牌"
+    level: p2
+    method: "错误推断"
+    brand_id: 99999
+    expected_code: 404
+
+
+batch_status_cases:
+  - id: "batch_show_status"
+    description: "批量修改品牌显示状态"
+    level: p1
+    method: "等价类-有效"
+    ids: [1, 2, 3]
+    showStatus: 0
+    expected_code: 200
+
+  - id: "batch_show_status_empty"
+    description: "批量修改传入空ID列表"
+    level: p2
+    method: "边界值"
+    ids: []
+    showStatus: 1
+    expected_code: 400

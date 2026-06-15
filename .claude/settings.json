@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(e:/PycharmProjects/mall_requests/.venv/Scripts/python.exe -m pytest test_cases/API/test_user_api.py -m smoke -v --alluredir=reports/allure-results --allure-no-capture -x)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8085/sso/session)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/sso/session)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8082)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8085)",
+      "Bash(curl -s \"http://localhost:8080/sso/session?username=autotest_user_01&password=123456\")",
+      "Bash(curl -s -X POST \"http://localhost:8080/sso/session\" -d \"username=autotest_user_01&password=123456\")",
+      "Bash(curl -s -X POST \"http://localhost:8080/sso/session\" -H \"Content-Type: application/json\" -d \"{\\\\\"username\\\\\":\\\\\"autotest_user_01\\\\\",\\\\\"password\\\\\":\\\\\"123456\\\\\"}\")",
+      "Bash(e:/PycharmProjects/mall_requests/.venv/Scripts/python.exe -m pytest test_cases/API/test_brand_api.py -m smoke -v --alluredir=reports/allure-results --allure-no-capture)"
+    ]
+  }
+}
