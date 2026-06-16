@@ -39,7 +39,9 @@ pipeline {
 
         stage('冒烟测试') {
             steps {
-                bat '"C:/Users/LENOVO/AppData/Local/Programs/Python/Python311/Scripts/pytest.exe" -m smoke -v --junitxml=reports/junit.xml --alluredir=reports/allure-results --tb=short'
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    bat '"C:/Users/LENOVO/AppData/Local/Programs/Python/Python311/Scripts/pytest.exe" -m smoke -v --junitxml=reports/junit.xml --alluredir=reports/allure-results --tb=short'
+                }
             }
         }
 
