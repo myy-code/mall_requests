@@ -47,10 +47,7 @@ pipeline {
 
         stage('生成Allure报告') {
             steps {
-                script {
-                    allure includeProperties: false,
-                        results: [[path: 'reports/allure-results']]
-                }
+                bat '"C:\\Users\\LENOVO\\AppData\\Local\\allure-2.32.2\\bin\\allure.bat" generate reports/allure-results -o reports/allure-report --clean'
             }
         }
     }
