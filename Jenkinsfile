@@ -47,23 +47,21 @@ pipeline {
 
         stage('生成Allure报告') {
             steps {
-                script {
-                    allure includeProperties: false,
-                        results: [[path: 'reports/allure-results']]
-                }
+                bat '"C:\\Users\\LENOVO\\AppData\\Local\\allure-2.32.2\\bin\\allure.bat" generate reports/allure-results -o reports/allure-report --clean'
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'reports/*.xml', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'reports/junit.xml', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'reports/allure-report/**', allowEmptyArchive: true
         }
         success {
-            echo '✅ 冒烟测试全部通过'
+            echo '== 冒烟测试全部通过 =='
         }
         failure {
-            echo '❌ 测试有失败，查看 Allure 报告定位'
+            echo '== 测试有失败，下载页面底部的 allure-report 压缩包查看 =='
         }
     }
 }
