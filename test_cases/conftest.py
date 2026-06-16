@@ -177,13 +177,24 @@ def db(setting):
 @pytest.fixture(scope="function")
 def delete_register_user(db):
     """
-    注册测试后置清理：删除测试用户
-    先清理可能残留的同名用户（上次运行残留），测试后再清理一次
+    注册测试前置+后置清理：删除所有自动化注册测试用户
+    确保每个注册用例都在干净的状态下执行
     """
-    yield
-    # 清理自动化注册的测试用户
-    test_usernames = ["autotest_user", "autotest_001", "autotest_002"]
+    # 前置清理（yield 之前）：清理上次残留
+    test_usernames = ["autotest_user", "autotest_001", "autotest_002",
+                      "user0011", "user003", "user004", "user005"]
     for username in test_usernames:
+        try:
+            db.execute_db(
+                "DELETE FROM ums_admin WHERE username = %s",
+                (username,)
+            )
+        except Exception:
+            pass
+    yield
+    # 后置清理（yield 之后）：清理本次产生的数据
+    for username in ["autotest_user", "autotest_001", "autotest_002",
+                      "user0011", "user003", "user004", "user005"]:
         try:
             db.execute_db(
                 "DELETE FROM ums_admin WHERE username = %s",

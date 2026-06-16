@@ -68,7 +68,7 @@ class TestUserLogin:
     )
     @pytest.mark.smoke
     @pytest.mark.p0
-    def test_03_register(self, authed_api, case,db):
+    def test_03_register(self, authed_api, case, db, delete_register_user):
         res = register_user(
             username=case["username"],
             password=case["password"],
