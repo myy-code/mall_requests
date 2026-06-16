@@ -16,6 +16,7 @@ simple_list_cases = load_yaml_data("product_data/product_test_data.yaml", key="s
 batch_cases = load_yaml_data("product_data/product_test_data.yaml", key="batch_cases")
 
 
+@allure.epic("商城后台管理系统")
 @allure.feature("商品管理")
 class TestProduct:
 
@@ -81,3 +82,7 @@ class TestProduct:
             ids=case["ids"], **{case["action"]: case["value"]}
         )
         assert result.code == case["expected_code"]
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, "-v", "--alluredir=reports/allure-results"])

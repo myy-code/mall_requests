@@ -12,6 +12,7 @@ from utils.data_loader import load_yaml_data, read_excel_test_cases
 from utils.logger import logger
 
 
+@allure.epic("商城后台管理系统")
 class TestUserLogin:
 
     # YAML 数据驱动
@@ -26,6 +27,7 @@ class TestUserLogin:
     @allure.title("{case[description]}")
     @allure.feature("用户认证")
     @allure.story("登录")
+    @allure.severity(allure.severity_level.BLOCKER)
     @pytest.mark.parametrize(
         "case",
         login_case,
@@ -58,6 +60,7 @@ class TestUserLogin:
     @allure.feature("用户认证")
     @allure.story("注册")
     @allure.title("{case[description]}")
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.parametrize(
         "case",
         _register_cases,
@@ -197,3 +200,7 @@ class TestUserLogin:
         result = get_user_roles(authed_api, admin_id=1)
         assert result.code == 200
         assert result.success
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, "-v", "--alluredir=reports/allure-results"])

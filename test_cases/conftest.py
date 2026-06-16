@@ -170,3 +170,54 @@ def db(setting):
     )
     yield db
     db.close()
+
+
+"""DB 数据清理夹具"""
+
+@pytest.fixture(scope="function")
+def delete_register_user(db):
+    """
+    注册测试后置清理：删除测试用户
+    先清理可能残留的同名用户（上次运行残留），测试后再清理一次
+    """
+    yield
+    # 清理自动化注册的测试用户
+    test_usernames = ["autotest_user", "autotest_001", "autotest_002"]
+    for username in test_usernames:
+        try:
+            db.execute_db(
+                "DELETE FROM ums_admin WHERE username = %s",
+                (username,)
+            )
+        except Exception:
+            pass  # 用户不存在时忽略
+
+
+@pytest.fixture(scope="function")
+def delete_test_brand(db):
+    """
+    品牌测试后置清理：删除测试品牌
+    """
+    yield
+    try:
+        db.execute_db(
+            "DELETE FROM pms_brand WHERE name LIKE %s",
+            ("auto_test_%",)
+        )
+    except Exception:
+        pass
+
+
+@pytest.fixture(scope="function")
+def delete_test_product(db):
+    """
+    商品测试后置清理：删除测试商品
+    """
+    yield
+    try:
+        db.execute_db(
+            "DELETE FROM pms_product WHERE name LIKE %s",
+            ("auto_test_%",)
+        )
+    except Exception:
+        pass

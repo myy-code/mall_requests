@@ -18,6 +18,7 @@ delete_cases = load_yaml_data("brand_data/brand_test_data.yaml", key="delete_cas
 batch_cases = load_yaml_data("brand_data/brand_test_data.yaml", key="batch_status_cases")
 
 
+@allure.epic("商城后台管理系统")
 @allure.feature("品牌管理")
 class TestBrand:
 
@@ -93,3 +94,7 @@ class TestBrand:
             authed_brand_api, ids=case["ids"], showStatus=case["showStatus"]
         )
         assert result.code == case["expected_code"]
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, "-v", "--alluredir=reports/allure-results"])

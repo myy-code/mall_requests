@@ -1,0 +1,30 @@
+# 场景测试数据文件
+# 每个 key 对应一个测试函数名，值为 parametrize 用例列表
+# 当前场景测试使用内置数据；此文件为后续数据驱动扩展预留
+
+test_user_register_login_info:
+  - id: "SCENARIO_USER_001"
+    description: "注册→登录→查看信息→登出 正常流程"
+    username: "autotest_user"
+    password: "123456"
+    nickName: "自动化测试用户"
+    email: "autotest@test.com"
+    expected_login_code: 200
+
+test_user_duplicate_register:
+  - id: "SCENARIO_USER_002"
+    description: "重复注册应返回失败"
+    username: "autotest_dup"
+    password: "123456"
+    nickName: "重复注册测试"
+    email: "dup@test.com"
+    first_expected_code: 200
+    second_expected_code_not: 200
+
+test_brand_create_query_update_delete:
+  - id: "SCENARIO_BRAND_001"
+    description: "品牌创建→查询→修改→删除 完整生命周期"
+
+test_product_create_query_search:
+  - id: "SCENARIO_PRODUCT_001"
+    description: "商品创建→列表查询→模糊搜索 流程"

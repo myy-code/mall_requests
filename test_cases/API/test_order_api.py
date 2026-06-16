@@ -8,6 +8,7 @@ from utils.logger import logger
 from operation.order_op import list_order, get_order_detail, update_order_note
 
 
+@allure.epic("商城后台管理系统")
 @allure.feature("订单管理-后台")
 class TestOrderAdmin:
 
@@ -51,3 +52,7 @@ class TestOrderAdmin:
         )
         assert result.code == 200
         logger.info(f"✅ 订单备注修改成功: orderId={order_id}")
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, "-v", "--alluredir=reports/allure-results"])
