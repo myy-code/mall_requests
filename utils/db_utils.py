@@ -43,5 +43,11 @@ class DBUtils:
             # 返回多条数据
             return cursor.fetchall()
 
+    def execute_db(self, sql, params=None):
+        """执行 INSERT/UPDATE/DELETE 操作"""
+        with self.conn.cursor() as cursor:
+            cursor.execute(sql, params)
+            self.conn.commit()
+
     def close(self):
         self.conn.close()
