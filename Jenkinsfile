@@ -15,8 +15,8 @@ pipeline {
     stages {
         stage('环境准备') {
             steps {
-                bat 'python -m pip install --upgrade pip'
-                bat 'pip install -r requirements.txt'
+                bat '"C:/Users/LENOVO/AppData/Local/Programs/Python/Python311/python.exe" -m pip install --upgrade pip'
+                bat '"C:/Users/LENOVO/AppData/Local/Programs/Python/Python311/python.exe" -m pip install -r requirements.txt'
             }
         }
 
@@ -39,7 +39,7 @@ pipeline {
 
         stage('冒烟测试') {
             steps {
-                bat 'pytest -m smoke -v --junitxml=reports/junit.xml --alluredir=reports/allure-results --tb=short'
+                bat '"C:/Users/LENOVO/AppData/Local/Programs/Python/Python311/Scripts/pytest.exe" -m smoke -v --junitxml=reports/junit.xml --alluredir=reports/allure-results --tb=short'
             }
         }
 
@@ -56,7 +56,6 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'reports/*.xml', allowEmptyArchive: true
-            cleanWs()
         }
         success {
             echo '✅ 冒烟测试全部通过'
