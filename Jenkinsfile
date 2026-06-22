@@ -88,12 +88,19 @@ pipeline {
 def parseTestResults() {
     try {
         def xml = readFile file: 'reports/junit.xml'
-        def suites = new XmlSlurper().parseText(xml)
-        def total = suites.'@tests'.toInteger()
-        def failures = suites.'@failures'.toInteger()
-        def errors = suites.'@errors'.toInteger()
-        def skipped = suites.'@skipped'.toInteger()
-        def passed = total - failures - errors - skipped
+        // 用字符串查找替代 XmlSlurper，避免 Jenkins 安全沙箱限制
+        def extract = { attr ->
+            def key = "${attr}=\""
+            def start = xml.indexOf(key)
+            if (start < 0) return '0'
+            start += key.length()
+            xml.substring(start, xml.indexOf('"', start))
+        }
+        def total   = extract('tests').toInteger()
+        def failures = extract('failures').toInteger()
+        def errors  = extract('errors').toInteger()
+        def skipped = extract('skipped').toInteger()
+        def passed  = total - failures - errors - skipped
         return [total: total, passed: passed, failed: failures + errors, skipped: skipped]
     } catch (Exception e) {
         echo "解析测试结果失败: ${e.message}"
@@ -103,23 +110,27 @@ def parseTestResults() {
 
 def sendWeCom(status, results) {
     withCredentials([string(credentialsId: 'WECOM_WEBHOOK', variable: 'WECOM_WEBHOOK')]) {
-        def passRate = results && results.total > 0 ? Math.round(results.passed * 100 / results.total) : 0
-
         def content = ''
-        if (status == 'success') {
-            content = """✅ 冒烟测试通过
+        if (results) {
+            def passRate = results.total > 0 ? Math.round(results.passed * 100 / results.total) : 0
+            if (status == 'success') {
+                content = """✅ 冒烟测试通过
 > 项目: ${env.JOB_NAME}
 > 通过率: ${passRate}% (${results.passed}/${results.total})
 > 构建: #${env.BUILD_NUMBER}
 > 报告: [Allure Report](${env.BUILD_URL}allure/)"""
-        } else {
-            content = """❌ 冒烟测试失败
+            } else {
+                content = """❌ 冒烟测试失败
 > 项目: ${env.JOB_NAME}
 > 通过率: ${passRate}% (${results.passed}/${results.total})
 > 失败: ${results.failed} 个用例
 > 构建: #${env.BUILD_NUMBER}
 > 日志: [Console](${env.BUILD_URL}console)
 > 报告: [Allure Report](${env.BUILD_URL}allure/)"""
+            }
+        } else {
+            def icon = status == 'success' ? '✅' : '❌'
+            content = "${icon} ${env.JOB_NAME} #${env.BUILD_NUMBER} ${status == 'success' ? '通过' : '失败'}"
         }
 
         def payload = JsonOutput.toJson([
