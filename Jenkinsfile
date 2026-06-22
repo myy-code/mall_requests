@@ -58,8 +58,7 @@ pipeline {
 
         stage('生成Allure报告') {
             steps {
-                allure toolName: 'allure',
-                      includeProperties: false,
+                allure includeProperties: false,
                       results: [[path: 'reports/allure-results']]
             }
         }
