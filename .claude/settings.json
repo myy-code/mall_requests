@@ -84,7 +84,13 @@
       "Bash(netsh advfirewall *)",
       "Bash(timeout 10 \"E:/cpolar/cpolar_extracted/cpolar.exe\" http -log=stdout 8081)",
       "Bash(curl -sL http://127.0.0.1:4040/status)",
-      "Bash(python -c \"import sys,re,json; h=sys.stdin.read\\(\\); m=re.search\\(r'window\\\\.data\\\\s*=\\\\s*JSON\\\\.parse\\\\\\(\\\\\"\\(.*\\)\\\\\"\\\\\\)',h\\); d=json.loads\\(m.group\\(1\\).replace\\('\\\\\\\\\\\\\\\\\\\\\"','\\\\\"'\\)\\); print\\([t['PublicUrl'] for t in d['UiState']['Tunnels']]\\)\")"
+      "Bash(python -c \"import sys,re,json; h=sys.stdin.read\\(\\); m=re.search\\(r'window\\\\.data\\\\s*=\\\\s*JSON\\\\.parse\\\\\\(\\\\\"\\(.*\\)\\\\\"\\\\\\)',h\\); d=json.loads\\(m.group\\(1\\).replace\\('\\\\\\\\\\\\\\\\\\\\\"','\\\\\"'\\)\\); print\\([t['PublicUrl'] for t in d['UiState']['Tunnels']]\\)\")",
+      "Bash(curl -so /dev/null -w \"%{http_code}\\\\n\" --connect-timeout 5 \"https://15fac62.r6.cpolar.cn/\")",
+      "Bash(curl -so /dev/null -w \"%{http_code}\\\\n\" --connect-timeout 5 \"https://15fac62.r6.cpolar.cn/github-webhook/\")",
+      "Bash(python -c \"import sys; h=sys.stdin.read\\(\\); import re; m=re.search\\(r'window\\\\.data\\\\s*=\\\\s*JSON\\\\.parse\\\\\\(\\\\\"\\(.*\\)\\\\\"\\\\\\)',h\\); import json; d=json.loads\\(m.group\\(1\\).replace\\('\\\\\\\\\\\\\\\\\\\\\"','\\\\\"'\\)\\); [print\\(t['PublicUrl']\\) for t in d['UiState']['Tunnels']]\")",
+      "Bash(curl -so /dev/null -w \"%{http_code}\" --connect-timeout 5 \"https://15fac62.r6.cpolar.cn/\")",
+      "Bash(curl -so /dev/null -w \"Jenkins: %{http_code}\\\\n\" \"http://localhost:8081/\")",
+      "Bash(curl -so /dev/null -w \"%{http_code}\" --connect-timeout 10 \"https://github.com\")"
     ],
     "additionalDirectories": [
       "C:\\ProgramData\\Jenkins\\.jenkins\\plugins\\jackson2-api",

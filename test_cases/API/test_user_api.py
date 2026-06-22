@@ -15,34 +15,7 @@ from utils.logger import logger
 @allure.epic("商城后台管理系统")
 class TestUserLogin:
 
-    # YAML 数据驱动
-    # login_case=load_yaml_data("user_api_data/login_data.yaml", key="login_cases")
-    # Excel 数据驱动
-    login_case=read_excel_test_cases(
-        "user_api_data/api_test_data.xlsx",
-        sheet_name="登录测试数据",
-        skiprows=0,
-        required_columns=["username","password"]
-    )
-    @allure.title("{case[description]}")
-    @allure.feature("用户认证")
-    @allure.story("登录")
-    @allure.severity(allure.severity_level.BLOCKER)
-    @pytest.mark.parametrize(
-        "case",
-        login_case,
-        ids=[c.get("id", c["case_id"]) for c in login_case]
-    )
-    @pytest.mark.smoke
-    @pytest.mark.p0
-    def test_01_login(self,user_api,case):
-        res=login_user(case['username'],case['password'],user_api)
-        assert res.code == int(case["expected_code"]),res.error
 
-        if res.code == 200:
-            assert res.success
-        else:
-            assert not res.success
 
     @allure.feature("用户认证")
     @allure.story("登录状态")
@@ -50,7 +23,7 @@ class TestUserLogin:
     @allure.severity(allure.severity_level.BLOCKER)
     @pytest.mark.smoke
     @pytest.mark.p0
-    def test_02_login_success(self, authed_api):
+    def test_01_login_success(self, authed_api):
         result = get_current_user_info(authed_api)
         assert result.code == 200
         assert result.success
@@ -68,7 +41,7 @@ class TestUserLogin:
     )
     @pytest.mark.smoke
     @pytest.mark.p0
-    def test_03_register(self, authed_api, case, db, delete_register_user):
+    def test_02_register(self, authed_api, case, db, delete_register_user):
         res = register_user(
             username=case["username"],
             password=case["password"],
@@ -83,6 +56,35 @@ class TestUserLogin:
         else:
             assert not res.success
 
+        # YAML 数据驱动
+        # login_case=load_yaml_data("user_api_data/login_data.yaml", key="login_cases")
+        # Excel 数据驱动
+
+    login_case = read_excel_test_cases(
+        "user_api_data/api_test_data.xlsx",
+        sheet_name="登录测试数据",
+        skiprows=0,
+        required_columns=["username", "password"]
+    )
+    @allure.title("{case[description]}")
+    @allure.feature("用户认证")
+    @allure.story("登录")
+    @allure.severity(allure.severity_level.BLOCKER)
+    @pytest.mark.parametrize(
+        "case",
+        login_case,
+        ids=[c.get("id", c["case_id"]) for c in login_case]
+    )
+    @pytest.mark.smoke
+    @pytest.mark.p0
+    def test_03_login(self, user_api, case):
+        res = login_user(case['username'], case['password'], user_api)
+        assert res.code == int(case["expected_code"]), res.error
+
+        if res.code == 200:
+            assert res.success
+        else:
+            assert not res.success
 
     @allure.feature("用户认证")
     @allure.story("Token管理")
