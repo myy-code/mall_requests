@@ -58,16 +58,8 @@ pipeline {
 
         stage('生成Allure报告') {
             steps {
-                bat 'C:/Users/LENOVO/AppData/Local/allure-2.32.2/bin/allure.bat generate reports/allure-results -o reports/allure-report --clean'
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'reports/allure-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Allure Report',
-                    reportTitles: '接口自动化测试报告'
-                ])
+                allure includeProperties: false,
+                      results: [[path: 'reports/allure-results']]
             }
         }
     }
@@ -80,7 +72,7 @@ pipeline {
             echo '== 冒烟测试全部通过 =='
         }
         failure {
-            echo '== 测试有失败，下载页面底部的 allure-report 压缩包查看 =='
+            echo '== 测试有失败，查看 Allure 报告了解详情 =='
         }
     }
 }
