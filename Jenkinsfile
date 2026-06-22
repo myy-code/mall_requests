@@ -58,12 +58,10 @@ pipeline {
 
         stage('生成Allure报告') {
             steps {
-                bat '''
-                    "C:/Users/LENOVO/AppData/Local/allure-2.32.2/bin/allure.bat" ^
-                        generate reports/allure-results ^
-                        -o reports/allure-report ^
-                        --clean
-                '''
+                script {
+                    allure includeProperties: false,
+                        results: [[path: 'reports/allure-results']]
+                }
             }
         }
     }
@@ -71,7 +69,6 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'reports/junit.xml', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'reports/allure-report/**', allowEmptyArchive: true
         }
         success {
             echo '== 冒烟测试全部通过 =='
