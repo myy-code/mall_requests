@@ -72,14 +72,22 @@ pipeline {
         }
         success {
             script {
-                def results = parseTestResults()
-                sendWeCom('success', results)
+                try {
+                    def results = parseTestResults()
+                    sendWeCom('success', results)
+                } catch (Exception e) {
+                    echo "发送通知失败: ${e.message}"
+                }
             }
         }
         failure {
             script {
-                def results = parseTestResults()
-                sendWeCom('failure', results)
+                try {
+                    def results = parseTestResults()
+                    sendWeCom('failure', results)
+                } catch (Exception e) {
+                    echo "发送通知失败: ${e.message}"
+                }
             }
         }
     }
@@ -112,7 +120,7 @@ def sendWeCom(status, results) {
     withCredentials([string(credentialsId: 'WECOM_WEBHOOK', variable: 'WECOM_WEBHOOK')]) {
         def content = ''
         if (results) {
-            def passRate = results.total > 0 ? Math.round(results.passed * 100 / results.total) : 0
+            def passRate = results.total > 0 ? Math.round(results.passed * 100f / results.total) : 0
             if (status == 'success') {
                 content = """✅ 冒烟测试通过
 > 项目: ${env.JOB_NAME}
