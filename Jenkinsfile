@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 pipeline {
     agent any
 
@@ -69,22 +71,64 @@ pipeline {
             archiveArtifacts artifacts: 'reports/junit.xml', allowEmptyArchive: true
         }
         success {
-            echo '== 冒烟测试全部通过 =='
+            script {
+                def results = parseTestResults()
+                sendWeCom('success', results)
+            }
         }
         failure {
             script {
-                withCredentials([string(credentialsId: 'WECOM_WEBHOOK', variable: 'WECOM_WEBHOOK')]) {
-                    bat '''
-                        powershell -Command "
-                            $body = @{
-                                msgtype = 'text'
-                                text    = @{ content = 'mall-api-test #' + $env:BUILD_NUMBER + ' 冒烟测试失败 - ' + $env:BUILD_URL }
-                            } | ConvertTo-Json -Depth 10
-                            Invoke-RestMethod -Uri $env:WECOM_WEBHOOK -Method Post -ContentType 'application/json' -Body $body
-                        "
-                    '''
-                }
+                def results = parseTestResults()
+                sendWeCom('failure', results)
             }
         }
+    }
+}
+
+def parseTestResults() {
+    try {
+        def xml = readFile file: 'reports/junit.xml'
+        def suites = new XmlSlurper().parseText(xml)
+        def total = suites.'@tests'.toInteger()
+        def failures = suites.'@failures'.toInteger()
+        def errors = suites.'@errors'.toInteger()
+        def skipped = suites.'@skipped'.toInteger()
+        def passed = total - failures - errors - skipped
+        return [total: total, passed: passed, failed: failures + errors, skipped: skipped]
+    } catch (Exception e) {
+        echo "解析测试结果失败: ${e.message}"
+        return null
+    }
+}
+
+def sendWeCom(status, results) {
+    withCredentials([string(credentialsId: 'WECOM_WEBHOOK', variable: 'WECOM_WEBHOOK')]) {
+        def passRate = results && results.total > 0 ? Math.round(results.passed * 100 / results.total) : 0
+
+        def content = ''
+        if (status == 'success') {
+            content = """✅ 冒烟测试通过
+> 项目: ${env.JOB_NAME}
+> 通过率: ${passRate}% (${results.passed}/${results.total})
+> 构建: #${env.BUILD_NUMBER}
+> 报告: [Allure Report](${env.BUILD_URL}allure/)"""
+        } else {
+            content = """❌ 冒烟测试失败
+> 项目: ${env.JOB_NAME}
+> 通过率: ${passRate}% (${results.passed}/${results.total})
+> 失败: ${results.failed} 个用例
+> 构建: #${env.BUILD_NUMBER}
+> 日志: [Console](${env.BUILD_URL}console)
+> 报告: [Allure Report](${env.BUILD_URL}allure/)"""
+        }
+
+        def payload = JsonOutput.toJson([
+            msgtype: 'markdown',
+            markdown: [content: content]
+        ])
+
+        writeFile file: 'wecom_payload.json', text: payload
+        bat 'powershell -Command "Invoke-RestMethod -Uri %WECOM_WEBHOOK% -Method Post -ContentType \'application/json\' -InFile wecom_payload.json"'
+        bat 'if exist wecom_payload.json del wecom_payload.json'
     }
 }
