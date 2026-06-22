@@ -72,7 +72,19 @@ pipeline {
             echo '== 冒烟测试全部通过 =='
         }
         failure {
-            echo '== 测试有失败，查看 Allure 报告了解详情 =='
+            script {
+                withCredentials([string(credentialsId: 'WECOM_WEBHOOK', variable: 'WECOM_WEBHOOK')]) {
+                    bat '''
+                        powershell -Command "
+                            $body = @{
+                                msgtype = 'text'
+                                text    = @{ content = 'mall-api-test #' + $env:BUILD_NUMBER + ' 冒烟测试失败 - ' + $env:BUILD_URL }
+                            } | ConvertTo-Json -Depth 10
+                            Invoke-RestMethod -Uri $env:WECOM_WEBHOOK -Method Post -ContentType 'application/json' -Body $body
+                        "
+                    '''
+                }
+            }
         }
     }
 }
