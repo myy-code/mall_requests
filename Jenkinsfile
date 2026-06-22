@@ -14,6 +14,10 @@ pipeline {
         TEST_DB_DATABASE = credentials('TEST_DB_DATABASE')
     }
 
+    triggers {
+        cron('H 7 * * 1-5')
+    }
+
     stages {
         stage('环境准备') {
             steps {
