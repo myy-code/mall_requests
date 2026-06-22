@@ -58,12 +58,16 @@ pipeline {
 
         stage('生成Allure报告') {
             steps {
-                script {
-                    step([
-                        $class: 'ru.yandex.qatools.allure.jenkins.AllureReportPublisher',
-                        results: [[path: 'reports/allure-results']]
-                    ])
-                }
+                bat 'C:/Users/LENOVO/AppData/Local/allure-2.32.2/bin/allure.bat generate reports/allure-results -o reports/allure-report --clean'
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'reports/allure-report',
+                    reportFiles: 'index.html',
+                    reportName: 'Allure Report',
+                    reportTitles: '接口自动化测试报告'
+                ])
             }
         }
     }
