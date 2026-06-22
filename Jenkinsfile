@@ -50,6 +50,7 @@ pipeline {
                         "C:/Users/LENOVO/AppData/Local/Programs/Python/Python311/Scripts/pytest.exe" ^
                             -m smoke ^
                             -v ^
+                            -n auto ^
                             --junitxml=reports/junit.xml ^
                             --alluredir=reports/allure-results ^
                             --tb=short
