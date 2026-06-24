@@ -2,6 +2,7 @@ import pytest
 import allure
 
 from api import UserAPI
+from core.base_test import BaseTest
 from operation.user_op import (
     login_user, register_user, refresh_token, logout_user, get_current_user_info,
     list_users, get_user, update_user, update_password, update_user_status,
@@ -13,7 +14,7 @@ from utils.logger import logger
 
 
 @allure.epic("商城后台管理系统")
-class TestUserLogin:
+class TestUserLogin(BaseTest):
 
 
 
@@ -25,8 +26,8 @@ class TestUserLogin:
     @pytest.mark.p0
     def test_01_login_success(self, authed_api):
         result = get_current_user_info(authed_api)
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     # 注册
     _register_cases = load_yaml_data("user_api_data/register_data.yaml", key="register_cases")
@@ -50,11 +51,11 @@ class TestUserLogin:
             user_api=authed_api,
             db=db
         )
-        assert res.code == case["expected_code"]
+        self.assert_code(res, case["expected_code"])
         if res.code == 200:
-            assert res.success
+            self.assert_success(res)
         else:
-            assert not res.success
+            self.assert_success(res, False)
 
         # YAML 数据驱动
         # login_case=load_yaml_data("user_api_data/login_data.yaml", key="login_cases")
@@ -79,12 +80,12 @@ class TestUserLogin:
     @pytest.mark.p0
     def test_03_login(self, user_api, case):
         res = login_user(case['username'], case['password'], user_api)
-        assert res.code == int(case["expected_code"]), res.error
+        self.assert_code(res, int(case["expected_code"]))
 
         if res.code == 200:
-            assert res.success
+            self.assert_success(res)
         else:
-            assert not res.success
+            self.assert_success(res, False)
 
     @allure.feature("用户认证")
     @allure.story("Token管理")
@@ -93,8 +94,8 @@ class TestUserLogin:
     @pytest.mark.p2
     def test_04_token(self, authed_api):
         result = refresh_token(authed_api)
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.feature("用户认证")
     @allure.story("登录状态")
@@ -104,8 +105,8 @@ class TestUserLogin:
     @pytest.mark.smoke
     def test_05_loginOut(self, authed_api):
         result = logout_user(authed_api)
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.feature("用户管理")
     @allure.story("查询")
@@ -114,8 +115,8 @@ class TestUserLogin:
     @pytest.mark.p1
     def test_06_list(self, authed_api):
         result = list_users(authed_api, keyword="伍六七", pagesize=5, pageNum=1)
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.feature("用户管理")
     @allure.story("查询")
@@ -124,8 +125,8 @@ class TestUserLogin:
     @pytest.mark.p1
     def test_07_get_user(self, authed_api):
         result = get_user(authed_api, user_id=1)
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.feature("用户管理")
     @allure.story("修改")
@@ -144,8 +145,8 @@ class TestUserLogin:
                 "status": 1
             }
         )
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.feature("用户管理")
     @allure.story("修改")
@@ -161,7 +162,7 @@ class TestUserLogin:
                 "newPassword": "123456"
             }
         )
-        assert result.success
+        self.assert_success(result)
 
     @allure.feature("用户管理")
     @allure.story("修改")
@@ -170,8 +171,8 @@ class TestUserLogin:
     @pytest.mark.p1
     def test_10_update_user_status(self, authed_api):
         result = update_user_status(authed_api, user_id=1, params={"status": 1})
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.feature("用户管理")
     @allure.story("删除")
@@ -180,8 +181,8 @@ class TestUserLogin:
     @pytest.mark.p2
     def test_11_delete_user(self, authed_api):
         result = delete_user(authed_api, user_id=11)
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.feature("用户管理")
     @allure.story("角色")
@@ -190,8 +191,8 @@ class TestUserLogin:
     @pytest.mark.p1
     def test_12_assign_roles(self, authed_api):
         result = assign_roles(authed_api, admin_id=1, json=[1, 2])
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.feature("用户管理")
     @allure.story("角色")
@@ -200,8 +201,8 @@ class TestUserLogin:
     @pytest.mark.p1
     def test_13_get_user_roles(self, authed_api):
         result = get_user_roles(authed_api, admin_id=1)
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
 
 if __name__ == '__main__':

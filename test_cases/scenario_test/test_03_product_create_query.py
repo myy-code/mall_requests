@@ -55,7 +55,7 @@ class TestProductScenario(BaseTest):
             pageSize=10,
             pageNum=1
         )
-        assert list_result.code == 200
+        self.assert_code(list_result, 200)
         logger.info(f"✅ 商品列表查询成功: total={(list_result.data or {}).get('total', 0)}")
 
         # Step 3: 模糊搜索
@@ -64,7 +64,7 @@ class TestProductScenario(BaseTest):
             authed_product_api,
             keyword="场景测试"
         )
-        assert search_result.code == 200
+        self.assert_code(search_result, 200)
         logger.info(f"✅ 商品模糊搜索成功")
 
     @allure.story("查询异常场景")
@@ -76,7 +76,7 @@ class TestProductScenario(BaseTest):
     def test_product_search_empty_keyword(self, authed_product_api):
         """场景：空关键词搜索"""
         result = simple_search_product(authed_product_api, keyword="")
-        assert result.code == 200
+        self.assert_code(result, 200)
         logger.info(f"✅ 空关键词搜索 code={result.code}")
 
 

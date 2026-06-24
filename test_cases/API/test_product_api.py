@@ -6,6 +6,7 @@ import pytest
 
 from utils.data_loader import load_yaml_data
 from utils.logger import logger
+from core.base_test import BaseTest
 from operation.product_op import (
     create_product, list_product, simple_search_product, batch_update_product
 )
@@ -18,7 +19,7 @@ batch_cases = load_yaml_data("product_data/product_test_data.yaml", key="batch_c
 
 @allure.epic("商城后台管理系统")
 @allure.feature("商品管理")
-class TestProduct:
+class TestProduct(BaseTest):
 
     @allure.story("创建商品")
     @allure.title("{case[description]}")
@@ -29,8 +30,7 @@ class TestProduct:
     @pytest.mark.smoke
     def test_01_create_product(self, authed_product_api, case):
         result = create_product(authed_product_api, **case["body"])
-        assert result.code == case["expected_code"], \
-            f"预期 {case['expected_code']}，实际 {result.code}"
+        self.assert_code(result, case["expected_code"])
         if result.code == 200:
             assert result.success
             logger.info(f"✅ 创建成功")
@@ -44,7 +44,7 @@ class TestProduct:
     @pytest.mark.smoke
     def test_02_list_product(self, authed_product_api, case):
         result = list_product(authed_product_api, **case["params"])
-        assert result.code == case["expected_code"]
+        self.assert_code(result, case["expected_code"])
 
         checks = case.get("checks", {})
         total = (result.data or {}).get("total", 0)
@@ -68,7 +68,7 @@ class TestProduct:
         result = simple_search_product(
             authed_product_api, keyword=case.get("keyword")
         )
-        assert result.code == case["expected_code"]
+        self.assert_code(result, case["expected_code"])
 
     @allure.story("批量操作")
     @allure.title("{case[description]}")
@@ -81,7 +81,7 @@ class TestProduct:
             authed_product_api, action=case["action"],
             ids=case["ids"], **{case["action"]: case["value"]}
         )
-        assert result.code == case["expected_code"]
+        self.assert_code(result, case["expected_code"])
 
 
 if __name__ == '__main__':

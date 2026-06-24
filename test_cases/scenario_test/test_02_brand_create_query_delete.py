@@ -37,34 +37,34 @@ class TestBrandScenario(BaseTest):
         # Step 1: 创建品牌
         logger.info("--- Step 1: 创建品牌 ---")
         create_result = create_brand(authed_brand_api, **brand_body)
-        assert create_result.code == 200, f"创建品牌失败: {create_result.error}"
+        self.assert_code(create_result, 200, "创建品牌")
         brand_id = (create_result.response.json().get("data") or {}).get("id")
         logger.info(f"✅ 品牌创建成功: brand_id={brand_id}")
 
         # Step 2: 列表查询
         logger.info("--- Step 2: 列表查询品牌 ---")
         list_result = list_brand(authed_brand_api, keyword="auto_test_品牌生命周期", pageSize=10, pageNum=1)
-        assert list_result.code == 200
+        self.assert_code(list_result, 200)
         logger.info(f"✅ 列表查询成功: total={(list_result.data or {}).get('total', 0)}")
 
         # Step 3: 详情查询
         logger.info("--- Step 3: 详情查询 ---")
         detail_result = get_brand_detail(authed_brand_api, brand_id=brand_id)
-        assert detail_result.code == 200
-        assert detail_result.success
+        self.assert_code(detail_result, 200)
+        self.assert_success(detail_result)
         logger.info(f"✅ 详情查询成功")
 
         # Step 4: 修改品牌
         logger.info("--- Step 4: 修改品牌 ---")
         update_body = {"name": "auto_test_品牌生命周期_已修改"}
         update_result = update_brand(authed_brand_api, brand_id=brand_id, **update_body)
-        assert update_result.code == 200, f"修改品牌失败: {update_result.error}"
+        self.assert_code(update_result, 200, "修改品牌")
         logger.info(f"✅ 品牌修改成功")
 
         # Step 5: 删除品牌
         logger.info("--- Step 5: 删除品牌 ---")
         delete_result = delete_brand(authed_brand_api, brand_id=brand_id)
-        assert delete_result.code == 200, f"删除品牌失败: {delete_result.error}"
+        self.assert_code(delete_result, 200, "删除品牌")
         logger.info(f"✅ 品牌生命周期流程完成")
 
     @allure.story("查询不存在的品牌")

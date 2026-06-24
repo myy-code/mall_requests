@@ -6,6 +6,7 @@ import pytest
 
 from utils.data_loader import load_yaml_data
 from utils.logger import logger
+from core.base_test import BaseTest
 from operation.brand_op import (
     create_brand, list_brand, get_brand_detail,
     update_brand, delete_brand, batch_update_brand_status
@@ -20,7 +21,7 @@ batch_cases = load_yaml_data("brand_data/brand_test_data.yaml", key="batch_statu
 
 @allure.epic("商城后台管理系统")
 @allure.feature("品牌管理")
-class TestBrand:
+class TestBrand(BaseTest):
 
     @allure.story("创建品牌")
     @allure.title("{case[description]}")
@@ -31,7 +32,7 @@ class TestBrand:
     @pytest.mark.smoke
     def test_01_create_brand(self, authed_brand_api, case):
         result = create_brand(authed_brand_api, **case["body"])
-        assert result.code == case["expected_code"], result.error
+        self.assert_code(result, case["expected_code"])
         if result.code == 200:
             assert result.success
 
@@ -44,7 +45,7 @@ class TestBrand:
     @pytest.mark.smoke
     def test_02_list_brand(self, authed_brand_api, case):
         result = list_brand(authed_brand_api, **case["params"])
-        assert result.code == case["expected_code"]
+        self.assert_code(result, case["expected_code"])
 
     @allure.story("查询品牌")
     @allure.title("获取品牌详情")
@@ -52,8 +53,8 @@ class TestBrand:
     @pytest.mark.p1
     def test_03_get_brand_detail(self, authed_brand_api):
         result = get_brand_detail(authed_brand_api, brand_id=1)
-        assert result.code == 200
-        assert result.success
+        self.assert_code(result, 200)
+        self.assert_success(result)
 
     @allure.story("查询品牌")
     @allure.title("获取不存在的品牌详情")
@@ -71,7 +72,7 @@ class TestBrand:
     @pytest.mark.p1
     def test_05_update_brand(self, authed_brand_api, case):
         result = update_brand(authed_brand_api, brand_id=case["brand_id"], **case["body"])
-        assert result.code == case["expected_code"]
+        self.assert_code(result, case["expected_code"])
 
     @allure.story("删除品牌")
     @allure.title("{case[description]}")
@@ -81,7 +82,7 @@ class TestBrand:
     @pytest.mark.p1
     def test_06_delete_brand(self, authed_brand_api, case):
         result = delete_brand(authed_brand_api, brand_id=case["brand_id"])
-        assert result.code == case["expected_code"]
+        self.assert_code(result, case["expected_code"])
 
     @allure.story("批量操作")
     @allure.title("{case[description]}")
@@ -93,7 +94,7 @@ class TestBrand:
         result = batch_update_brand_status(
             authed_brand_api, ids=case["ids"], showStatus=case["showStatus"]
         )
-        assert result.code == case["expected_code"]
+        self.assert_code(result, case["expected_code"])
 
 
 if __name__ == '__main__':

@@ -40,7 +40,7 @@ class TestUserScenario(BaseTest):
             email=test_user["email"],
             user_api=authed_api
         )
-        assert reg_result.code == 200, f"注册失败: {reg_result.error}"
+        self.assert_code(reg_result, 200, "注册新用户")
 
         # Step 2: 用新注册用户登录
         logger.info("--- Step 2: 新用户登录 ---")
@@ -49,7 +49,7 @@ class TestUserScenario(BaseTest):
             password=test_user["password"],
             user_api=user_api
         )
-        assert login_result.code == 200, f"登录失败: {login_result.error}"
+        self.assert_code(login_result, 200, "新用户登录")
         assert login_result.token, "登录成功但未获取到 token"
 
         # Step 3: 登录后获取用户信息
@@ -57,14 +57,14 @@ class TestUserScenario(BaseTest):
         new_user_api = type(user_api)(user_api.base_url)
         new_user_api.set_token(login_result.token)
         info_result = get_current_user_info(new_user_api)
-        assert info_result.code == 200
-        assert info_result.success
+        self.assert_code(info_result, 200)
+        self.assert_success(info_result)
         logger.info(f"✅ 用户场景流程完成: {test_user['username']}")
 
         # Step 4: 登出
         logger.info("--- Step 4: 登出 ---")
         logout_result = logout_user(new_user_api)
-        assert logout_result.code == 200
+        self.assert_code(logout_result, 200)
 
     @allure.story("重复注册校验")
     @allure.title("重复注册相同用户名应失败")
@@ -90,7 +90,7 @@ class TestUserScenario(BaseTest):
             email=test_user["email"],
             user_api=authed_api
         )
-        assert reg1.code == 200, f"第一次注册应成功: {reg1.error}"
+        self.assert_code(reg1, 200, "第一次注册应成功")
 
         # 第二次注册（应失败）
         logger.info("--- 第二次注册（预期失败） ---")
